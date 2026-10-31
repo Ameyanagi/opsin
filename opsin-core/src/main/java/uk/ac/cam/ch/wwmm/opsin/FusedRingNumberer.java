@@ -165,37 +165,36 @@ class FusedRingNumberer {
 	    		i++;j++;
 	    	}
 
-	    	i=0;
-	    	j=0;
 	    	//Give low numbers for heteroatoms when considered in the order: O, S, Se, Te, N, P, As, Sb, Bi, Si, Ge, Sn, Pb, B, Hg
-	    	while(i < sequenceA.size()){
-				Atom atomA=sequenceA.get(i);
+	    	//i.e. O atoms take the lowest locants available, then S atoms etc. (FR-5.4(b))
+	    	for (int priority = 24; priority >= 2; priority--) {
+		    	i=0;
+		    	j=0;
+		    	while(i < sequenceA.size()){
+					Atom atomA=sequenceA.get(i);
 
-				//bridgehead carbon do not increment numbering
-				if (atomA.getElement() == ChemEl.C && atomA.getBondCount()>=3){
-					i++;
-					continue;
-				}
+					//bridgehead carbon do not increment numbering
+					if (atomA.getElement() == ChemEl.C && atomA.getBondCount()>=3){
+						i++;
+						continue;
+					}
 
-				Atom atomB=sequenceB.get(j);
-				if (atomB.getElement() == ChemEl.C && atomB.getBondCount()>=3){
-					j++;
-					continue;
-				}
+					Atom atomB=sequenceB.get(j);
+					if (atomB.getElement() == ChemEl.C && atomB.getBondCount()>=3){
+						j++;
+						continue;
+					}
 
-				Integer heteroAtomPriorityA = heteroAtomValues.get(atomA.getElement());
-				int atomAElementValue = heteroAtomPriorityA != null ? heteroAtomPriorityA : 0;
-				
-				Integer heteroAtomPriorityB = heteroAtomValues.get(atomB.getElement());
-				int atomBElementValue = heteroAtomPriorityB != null ? heteroAtomPriorityB : 0;
-
-				if (atomAElementValue > atomBElementValue){
-					return -1;
-				}
-				if (atomAElementValue < atomBElementValue){
-					return 1;
-				}
-				i++;j++;
+					boolean isAaPriority = Integer.valueOf(priority).equals(heteroAtomValues.get(atomA.getElement()));
+					boolean isBaPriority = Integer.valueOf(priority).equals(heteroAtomValues.get(atomB.getElement()));
+					if (isAaPriority && !isBaPriority){
+						return -1;
+					}
+					if (isBaPriority && !isAaPriority){
+						return 1;
+					}
+					i++;j++;
+		    	}
 	    	}
 
 	    	//Give low numbers to fusion carbon atoms.

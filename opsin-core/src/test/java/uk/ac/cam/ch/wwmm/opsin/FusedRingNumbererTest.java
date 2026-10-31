@@ -430,6 +430,17 @@ public class FusedRingNumbererTest {
 	public void indeno_7_1_cd_azepine() throws StructureBuildingException {
 		compareNumbering("c1nccc2ccc3cccc1c23", "1/2/3/4/4a/5/6/6a/7/8/9/9a/9b");
 	}
+
+	@Test
+	public void benzoOxazoleThiazoleAngular() throws StructureBuildingException {
+		//FR-5.4(b): O takes the lowest locant available before S is considered, giving N1, O3, N6, S8 rather than S1, N3, O6, N8
+		Fragment fusedRing = sBuilder.build("c1nc2ccc3ocnc3c2s1", mock(Element.class), XmlDeclarations.NONE_LABELS_VAL);
+		FusedRingNumberer.numberFusedRing(fusedRing);
+		assertEquals(ChemEl.N, fusedRing.getAtomByLocant("1").getElement());
+		assertEquals(ChemEl.O, fusedRing.getAtomByLocant("3").getElement());
+		assertEquals(ChemEl.N, fusedRing.getAtomByLocant("6").getElement());
+		assertEquals(ChemEl.S, fusedRing.getAtomByLocant("8").getElement());
+	}
 	
 	@Test
 	@Disabled
